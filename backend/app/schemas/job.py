@@ -3,7 +3,7 @@ from typing import List, Optional
 from datetime import datetime
 
 class JobMatchRequest(BaseModel):
-    resume_id: int
+    resume_id: Optional[int] = None
     job_title: str = Field(..., min_length=2)
     company: Optional[str] = None
     job_description: str = Field(..., min_length=20)

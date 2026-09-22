@@ -2,7 +2,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from sqlalchemy.orm import Session
 from app.database.database import get_db
-from app.database.models import User, Resume, ResumeAnalysis
+from app.database.models import User, Resume, ResumeAnalysis, JobAnalysis
 from app.core.deps import get_current_user
 from app.services.resume_parser import parse_and_validate_resume
 from app.schemas.resume import ResumeResponse, ResumeDetail
@@ -52,6 +52,7 @@ def get_user_resumes(
     results = []
     for r in resumes:
         latest_analysis = db.query(ResumeAnalysis).filter(ResumeAnalysis.resume_id == r.id).order_by(ResumeAnalysis.created_at.desc()).first()
+        latest_job = db.query(JobAnalysis).filter(JobAnalysis.resume_id == r.id).order_by(JobAnalysis.created_at.desc()).first()
         results.append({
             "id": r.id,
             "user_id": r.user_id,
@@ -60,7 +61,9 @@ def get_user_resumes(
             "file_size": r.file_size,
             "created_at": r.created_at,
             "has_analysis": latest_analysis is not None,
-            "latest_ats_score": latest_analysis.ats_score if latest_analysis else None
+            "latest_ats_score": latest_analysis.ats_score if latest_analysis else None,
+            "latest_job_match_score": latest_job.match_score if latest_job else None,
+            "latest_job_title": latest_job.job_title if latest_job else None,
         })
     return results
 
@@ -75,6 +78,7 @@ def get_resume(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Resume not found.")
     
     latest_analysis = db.query(ResumeAnalysis).filter(ResumeAnalysis.resume_id == resume.id).order_by(ResumeAnalysis.created_at.desc()).first()
+    latest_job = db.query(JobAnalysis).filter(JobAnalysis.resume_id == resume.id).order_by(JobAnalysis.created_at.desc()).first()
     
     return {
         "id": resume.id,
@@ -85,7 +89,9 @@ def get_resume(
         "extracted_text": resume.extracted_text,
         "created_at": resume.created_at,
         "has_analysis": latest_analysis is not None,
-        "latest_ats_score": latest_analysis.ats_score if latest_analysis else None
+        "latest_ats_score": latest_analysis.ats_score if latest_analysis else None,
+        "latest_job_match_score": latest_job.match_score if latest_job else None,
+        "latest_job_title": latest_job.job_title if latest_job else None,
     }
 
 @router.delete("/{resume_id}", status_code=status.HTTP_200_OK)

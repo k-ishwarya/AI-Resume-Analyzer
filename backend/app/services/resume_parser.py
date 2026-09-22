@@ -1,6 +1,6 @@
 import io
 import re
-import fitz  # PyMuPDF
+import pymupdf as fitz  # PyMuPDF
 import docx  # python-docx
 from fastapi import HTTPException, status, UploadFile
 from app.core.config import settings

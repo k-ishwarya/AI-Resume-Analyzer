@@ -78,19 +78,61 @@ async def analyze_resume(
         "file_name": resume.file_name
     }
 
+@router.get("", response_model=List[ResumeAnalysisResponse])
+def get_user_analyses(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    analyses = db.query(ResumeAnalysis).join(Resume).filter(
+        Resume.user_id == current_user.id
+    ).order_by(ResumeAnalysis.created_at.desc()).all()
+
+    return [
+        {
+            "id": a.id,
+            "resume_id": a.resume_id,
+            "ats_score": a.ats_score,
+            "ats_breakdown": a.ats_breakdown,
+            "personal_info": a.personal_info,
+            "education": a.education,
+            "skills": a.skills,
+            "projects": a.projects,
+            "experience": a.experience,
+            "certifications": a.certifications,
+            "achievements": a.achievements,
+            "strengths": a.strengths,
+            "weaknesses": a.weaknesses,
+            "suggestions": a.suggestions,
+            "detected_sections": a.detected_sections,
+            "created_at": a.created_at,
+            "file_name": a.resume.file_name if a.resume else "Resume"
+        }
+        for a in analyses
+    ]
+
 @router.get("/{resume_id}", response_model=ResumeAnalysisResponse)
 def get_latest_resume_analysis(
     resume_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    # Try finding by resume_id first
     resume = db.query(Resume).filter(Resume.id == resume_id, Resume.user_id == current_user.id).first()
-    if not resume:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Resume not found.")
-
-    analysis = db.query(ResumeAnalysis).filter(ResumeAnalysis.resume_id == resume.id).order_by(ResumeAnalysis.created_at.desc()).first()
+    analysis = None
+    if resume:
+        analysis = db.query(ResumeAnalysis).filter(ResumeAnalysis.resume_id == resume.id).order_by(ResumeAnalysis.created_at.desc()).first()
+    
+    # If not found by resume_id, check if resume_id was actually analysis_id
     if not analysis:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Analysis not found for this resume. Please trigger analysis.")
+        analysis = db.query(ResumeAnalysis).join(Resume).filter(
+            ResumeAnalysis.id == resume_id,
+            (Resume.user_id == current_user.id) | (current_user.role == "ADMIN")
+        ).first()
+        if analysis:
+            resume = analysis.resume
+
+    if not analysis:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Analysis not found for this resume or ID.")
 
     return {
         "id": analysis.id,

@@ -9,13 +9,7 @@ from app.services.job_match_service import analyze_job_match
 
 router = APIRouter(prefix="/api/job-match", tags=["Job Match"])
 
-@router.post("/{resume_id}", response_model=JobMatchResponse, status_code=status.HTTP_201_CREATED)
-async def match_resume_with_job(
-    resume_id: int,
-    payload: JobMatchRequest,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
+async def _perform_job_match(resume_id: int, payload: JobMatchRequest, current_user: User, db: Session):
     resume = db.query(Resume).filter(Resume.id == resume_id, Resume.user_id == current_user.id).first()
     if not resume:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Resume not found.")
@@ -53,6 +47,41 @@ async def match_resume_with_job(
     db.refresh(job_analysis)
 
     return job_analysis
+
+@router.post("/analyze", response_model=JobMatchResponse, status_code=status.HTTP_201_CREATED)
+async def analyze_job_match_endpoint(
+    payload: JobMatchRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    target_id = payload.resume_id
+    if not target_id:
+        # Fall back to latest resume
+        latest_resume = db.query(Resume).filter(Resume.user_id == current_user.id).order_by(Resume.created_at.desc()).first()
+        if not latest_resume:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No resume available to match. Please upload a resume first.")
+        target_id = latest_resume.id
+
+    return await _perform_job_match(target_id, payload, current_user, db)
+
+@router.get("", response_model=List[JobMatchResponse])
+def get_user_job_matches(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    matches = db.query(JobAnalysis).join(Resume).filter(
+        Resume.user_id == current_user.id
+    ).order_by(JobAnalysis.created_at.desc()).all()
+    return matches
+
+@router.post("/{resume_id}", response_model=JobMatchResponse, status_code=status.HTTP_201_CREATED)
+async def match_resume_with_job(
+    resume_id: int,
+    payload: JobMatchRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    return await _perform_job_match(resume_id, payload, current_user, db)
 
 @router.get("/resume/{resume_id}", response_model=List[JobMatchResponse])
 def get_resume_job_matches(

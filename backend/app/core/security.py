@@ -38,3 +38,39 @@ def decode_access_token(token: str) -> Optional[dict]:
         return payload
     except JWTError:
         return None
+
+def create_reset_token(email: str, password_hash: str = "", expires_minutes: int = 15) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(minutes=expires_minutes)
+    # Use the last 12 characters of current password hash as an invalidation fingerprint
+    fingerprint = password_hash[-12:] if password_hash else ""
+    payload = {
+        "sub": email,
+        "purpose": "password_reset",
+        "fp": fingerprint,
+        "exp": expire
+    }
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+def decode_reset_token(token: str) -> Optional[dict]:
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        if payload.get("purpose") != "password_reset":
+            return None
+        return payload
+    except JWTError:
+        return None
+
+def verify_reset_token(token: str, current_password_hash: Optional[str] = None) -> Optional[str]:
+    payload = decode_reset_token(token)
+    if not payload:
+        return None
+    
+    # If checking against current password hash, ensure token hasn't already been used
+    if current_password_hash:
+        expected_fp = current_password_hash[-12:]
+        if payload.get("fp") != expected_fp:
+            return None
+
+    return payload.get("sub")
+
+

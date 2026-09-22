@@ -95,7 +95,8 @@ export default function History() {
                       <th className="py-3.5 px-6">Resume Name</th>
                       <th className="py-3.5 px-6">Format</th>
                       <th className="py-3.5 px-6">Date Analyzed</th>
-                      <th className="py-3.5 px-6">ATS Compatibility</th>
+                      <th className="py-3.5 px-6">Estimated ATS Compatibility</th>
+                      <th className="py-3.5 px-6">Job Match Score</th>
                       <th className="py-3.5 px-6">Status</th>
                       <th className="py-3.5 px-6 text-right">Actions</th>
                     </tr>
@@ -125,6 +126,21 @@ export default function History() {
                             </span>
                           ) : (
                             <span className="text-slate-400 italic">Pending</span>
+                          )}
+                        </td>
+
+                        <td className="py-4 px-6">
+                          {r.latest_job_match_score !== null && r.latest_job_match_score !== undefined ? (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                              {r.latest_job_match_score}%
+                            </span>
+                          ) : (
+                            <Link
+                              to={`/job-match?resumeId=${r.id}`}
+                              className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 underline"
+                            >
+                              Run Match
+                            </Link>
                           )}
                         </td>
 

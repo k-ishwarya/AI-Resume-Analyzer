@@ -13,6 +13,8 @@ class ResumeResponse(ResumeBase):
     created_at: datetime
     has_analysis: bool = False
     latest_ats_score: Optional[int] = None
+    latest_job_match_score: Optional[int] = None
+    latest_job_title: Optional[str] = None
 
     class Config:
         from_attributes = True

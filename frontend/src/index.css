@@ -38,12 +38,19 @@
 
 /* ATS Vector Print & PDF Styles */
 @media print {
+  /* Removing @page margin to 0 strips browser's header/footer (date, time, URL) */
+  @page {
+    margin: 0;
+    size: A4;
+  }
+
   body {
     background: #ffffff !important;
     color: #000000 !important;
     padding: 0 !important;
     margin: 0 !important;
   }
+
   .no-print,
   nav,
   aside,
@@ -51,16 +58,17 @@
   .print-hide {
     display: none !important;
   }
+
+  /* Single consolidated rule for the printable resume element */
   #printable-resume {
+    transform: none !important;
+    transform-origin: unset !important;
     border: none !important;
     box-shadow: none !important;
-    padding: 0 !important;
-    margin: 0 auto !important;
+    margin: 0 !important;
     width: 100% !important;
-    max-width: 100% !important;
-  }
-  @page {
-    margin: 12mm 15mm;
-    size: auto;
+    /* Inner padding replaces @page margins so content doesn't touch the page edge */
+    padding: 12mm 15mm !important;
   }
 }
+

@@ -10,6 +10,7 @@ from app.schemas.auth import UserResponse
 router = APIRouter(prefix="/api/admin", tags=["Admin Management"])
 
 @router.get("/statistics")
+@router.get("/dashboard")
 def get_admin_statistics(
     admin: User = Depends(get_current_admin),
     db: Session = Depends(get_db)

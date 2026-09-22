@@ -38,14 +38,11 @@ export default function Landing() {
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
-                Analyze Your Resume.{' '}
-                <span className="bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-600 bg-clip-text text-transparent">
-                  Improve Your Career.
-                </span>
+                AI Resume Analyzer
               </h1>
 
               <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal">
-                Get AI-powered insights, ATS analysis, skill matching, and personalized resume improvement suggestions designed for students, freshers, and job seekers.
+                Analyze your resume, improve ATS compatibility, and match your skills with real job requirements.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
@@ -259,6 +256,223 @@ export default function Landing() {
               </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Detailed Explanations Section */}
+      <section className="py-20 bg-white border-b border-slate-200/80 space-y-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          {/* 1. ATS Analysis Explanation */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-6 space-y-5">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold">
+                <FileCheck2 className="w-3.5 h-3.5" />
+                <span>Transparent ATS Scoring</span>
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                How Our ATS Analysis Works
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Most platforms display arbitrary, black-box scores. Our system evaluates your resume through six deterministic factors modeled after real-world corporate Applicant Tracking Systems:
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-2">
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                  <span className="font-bold text-slate-900">1. Contact Completeness</span>
+                  <p className="text-slate-500 text-[11px]">Validates presence of name, phone, email, LinkedIn, and GitHub links.</p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                  <span className="font-bold text-slate-900">2. Section Structure</span>
+                  <p className="text-slate-500 text-[11px]">Detects standard headings (Education, Skills, Projects, Experience).</p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                  <span className="font-bold text-slate-900">3. Technical Skills Volume</span>
+                  <p className="text-slate-500 text-[11px]">Categorizes languages, frameworks, databases, and dev tools.</p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                  <span className="font-bold text-slate-900">4. Action Verb Density</span>
+                  <p className="text-slate-500 text-[11px]">Scores presence of proactive verbs (Engineered, Architected, Optimized).</p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                  <span className="font-bold text-slate-900">5. Measurable Outcomes</span>
+                  <p className="text-slate-500 text-[11px]">Checks for quantified impact metrics (percentages, latency, users).</p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                  <span className="font-bold text-slate-900">6. Readability & Length</span>
+                  <p className="text-slate-500 text-[11px]">Checks word count to ensure optimal 1-2 page presentation.</p>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
+                <span className="font-bold block">Important Disclosure:</span>
+                <span className="text-[11px] text-amber-800">
+                  Scores are labeled as <strong>Estimated ATS Compatibility</strong>. This score is an approximation based on our heuristic and AI evaluation to help guide your revisions, not an official guarantee by third-party recruiters.
+                </span>
+              </div>
+            </div>
+
+            <div className="lg:col-span-6 bg-slate-50 rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-5">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Scoring Breakdown Sample</span>
+                <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full">84% Overall</span>
+              </div>
+
+              <div className="space-y-3 text-xs">
+                <div>
+                  <div className="flex justify-between font-semibold text-slate-700 mb-1">
+                    <span>Contact Information</span>
+                    <span>95%</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
+                    <div className="h-full bg-indigo-600 rounded-full" style={{ width: '95%' }} />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between font-semibold text-slate-700 mb-1">
+                    <span>Section Structure</span>
+                    <span>90%</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
+                    <div className="h-full bg-blue-600 rounded-full" style={{ width: '90%' }} />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between font-semibold text-slate-700 mb-1">
+                    <span>Technical Skills Coverage</span>
+                    <span>85%</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
+                    <div className="h-full bg-emerald-600 rounded-full" style={{ width: '85%' }} />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between font-semibold text-slate-700 mb-1">
+                    <span>Action Verbs & Impact</span>
+                    <span>78%</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
+                    <div className="h-full bg-amber-500 rounded-full" style={{ width: '78%' }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. Job Matching Explanation */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center pt-20 border-t border-slate-200/80">
+            <div className="lg:col-span-6 order-2 lg:order-1 bg-slate-50 rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-4">
+              <div className="border-b border-slate-200 pb-3 flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-800">Job Fit Simulation</span>
+                <span className="text-xs font-bold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full">78% Match</span>
+              </div>
+
+              <div className="space-y-3 text-xs">
+                <div>
+                  <span className="font-bold text-emerald-800 block mb-1.5 flex items-center gap-1">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> Matched Skills (Covered)
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {['Python', 'React.js', 'PostgreSQL', 'Git', 'REST APIs'].map((s) => (
+                      <span key={s} className="px-2 py-0.5 text-[11px] font-semibold rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <span className="font-bold text-rose-800 block mb-1.5 flex items-center gap-1">
+                    <span className="w-3.5 h-3.5 rounded-full bg-rose-200 text-rose-700 flex items-center justify-center font-bold text-[10px]">!</span> Missing Skills (To Learn)
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {['Docker', 'AWS', 'CI/CD Pipelines'].map((s) => (
+                      <span key={s} className="px-2 py-0.5 text-[11px] font-semibold rounded-md bg-rose-50 text-rose-700 border border-rose-200">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-6 order-1 lg:order-2 space-y-5">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">
+                <Briefcase className="w-3.5 h-3.5" />
+                <span>Real-Time Job Description Match</span>
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                Understand Exactly How You Fit the Job
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Paste any real job posting (from LinkedIn, Indeed, or campus placement portals) to compare your resume against recruiter expectations:
+              </p>
+              <ul className="space-y-2.5 text-xs text-slate-700">
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                  <span><strong>Matched Keywords:</strong> Discover skills from the job description already validated in your projects.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                  <span><strong>Missing Requirements:</strong> Identify high-priority tools and frameworks you should study or highlight.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                  <span><strong>Seniority Fit:</strong> Evaluates whether your experience level aligns with Junior, Mid, or Senior specifications.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* 3. AI Assistant Explanation */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center pt-20 border-t border-slate-200/80">
+            <div className="lg:col-span-6 space-y-5">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-50 text-violet-700 text-xs font-bold">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Contextual Career Coach</span>
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                AI Resume Assistant Chatbot
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Powered by Google Gemini AI, our assistant reviews your uploaded resume in real time. Rather than giving generic advice, it answers specific questions grounded directly in your background:
+              </p>
+              <div className="space-y-2 text-xs">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800">
+                  <span className="font-bold text-indigo-600">Candidate:</span> "How should I describe my placement project using better action verbs?"
+                </div>
+                <div className="p-3 rounded-xl bg-indigo-50/50 border border-indigo-100 text-slate-800">
+                  <span className="font-bold text-indigo-700">AI Assistant:</span> "Instead of saying 'Worked on backend', use 'Architected scalable RESTful API endpoints using FastAPI and PostgreSQL with JWT authorization.'"
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-6 bg-slate-50 rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-4">
+              <h4 className="text-sm font-bold text-slate-900">What You Can Ask the Assistant:</h4>
+              <div className="grid grid-cols-1 gap-2.5 text-xs text-slate-700">
+                <div className="p-3 bg-white rounded-xl border border-slate-200 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                  <span>"What are the strongest areas of my technical resume?"</span>
+                </div>
+                <div className="p-3 bg-white rounded-xl border border-slate-200 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                  <span>"How do I optimize my career summary for fresher roles?"</span>
+                </div>
+                <div className="p-3 bg-white rounded-xl border border-slate-200 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                  <span>"Which high-frequency keywords should I add for Frontend jobs?"</span>
+                </div>
+                <div className="p-3 bg-white rounded-xl border border-slate-200 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                  <span>"Is my project section strong enough for product-based companies?"</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
 

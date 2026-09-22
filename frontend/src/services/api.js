@@ -1,12 +1,13 @@
 import axios from 'axios';
 
-// Create base Axios instance
+// Create base Axios instance (supports VITE_API_BASE_URL in production, defaults to /api proxy in development)
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
 
 // Automatically attach JWT Bearer token if available in localStorage
 api.interceptors.request.use(

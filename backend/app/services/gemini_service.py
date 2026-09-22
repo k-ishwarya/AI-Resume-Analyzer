@@ -210,23 +210,12 @@ JSON SCHEMA TO RETURN:
             # Using google-genai client interactions or models
             # In google-genai >= 2.0.0, client.models.generate_content or client.interactions.create can be used
             # We support both for maximum compatibility
-            model_name = settings.GEMINI_MODEL or "gemini-3.8-flash"
-            response_text = ""
-            
-            try:
-                # Try interactions API first as per SDK standard
-                interaction = self.client.interactions.create(
-                    model=model_name,
-                    input=prompt
-                )
-                response_text = interaction.output_text or ""
-            except Exception:
-                # Fallback to models.generate_content
-                response = self.client.models.generate_content(
-                    model=model_name,
-                    contents=prompt
-                )
-                response_text = response.text or ""
+            model_name = settings.GEMINI_MODEL or "gemini-3.6-flash"
+            response = self.client.models.generate_content(
+                model=model_name,
+                contents=prompt
+            )
+            response_text = response.text or ""
 
             if not response_text:
                 raise ValueError("Empty response received from Gemini API")
@@ -277,13 +266,9 @@ JSON SCHEMA:
 }}"""
 
         try:
-            model_name = settings.GEMINI_MODEL or "gemini-3.8-flash"
-            try:
-                interaction = self.client.interactions.create(model=model_name, input=prompt)
-                res_text = interaction.output_text or ""
-            except Exception:
-                res = self.client.models.generate_content(model=model_name, contents=prompt)
-                res_text = res.text or ""
+            model_name = settings.GEMINI_MODEL or "gemini-3.6-flash"
+            res = self.client.models.generate_content(model=model_name, contents=prompt)
+            res_text = res.text or ""
 
             return self._extract_json_from_response(res_text)
         except Exception as e:
@@ -346,13 +331,9 @@ JSON SCHEMA:
 }}"""
 
         try:
-            model_name = settings.GEMINI_MODEL or "gemini-3.8-flash"
-            try:
-                interaction = self.client.interactions.create(model=model_name, input=prompt)
-                res_text = interaction.output_text or ""
-            except Exception:
-                res = self.client.models.generate_content(model=model_name, contents=prompt)
-                res_text = res.text or ""
+            model_name = settings.GEMINI_MODEL or "gemini-3.6-flash"
+            res = self.client.models.generate_content(model=model_name, contents=prompt)
+            res_text = res.text or ""
 
             result = self._extract_json_from_response(res_text)
             # Validate required fields
@@ -413,13 +394,9 @@ USER: {user_message}
 ASSISTANT:"""
 
         try:
-            model_name = settings.GEMINI_MODEL or "gemini-3.8-flash"
-            try:
-                interaction = self.client.interactions.create(model=model_name, input=prompt)
-                return interaction.output_text or "I reviewed your resume. Feel free to ask more specific questions about formatting, skill alignment, or project descriptions!"
-            except Exception:
-                res = self.client.models.generate_content(model=model_name, contents=prompt)
-                return res.text or "I reviewed your resume. How else can I assist with your career preparation?"
+            model_name = settings.GEMINI_MODEL or "gemini-3.6-flash"
+            res = self.client.models.generate_content(model=model_name, contents=prompt)
+            return res.text or "I reviewed your resume. How else can I assist with your career preparation?"
         except Exception as e:
             logger.error(f"Chat assistant error: {e}")
             return "I am reviewing your resume details. To improve your ATS score, consider quantifying your project results and adding verified technical certifications."

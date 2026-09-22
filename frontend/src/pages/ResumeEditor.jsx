@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import html2pdf from 'html2pdf.js';
 import { useSearchParams, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
@@ -27,7 +28,11 @@ import {
   GraduationCap,
   Wrench,
   AlignLeft,
-  Share2
+  Share2,
+  Award,
+  PencilLine,
+  ToggleLeft,
+  ToggleRight
 } from 'lucide-react';
 
 export default function ResumeEditor() {
@@ -41,10 +46,16 @@ export default function ResumeEditor() {
   const [suggestions, setSuggestions] = useState([]);
   const [appliedSuggestions, setAppliedSuggestions] = useState(new Set());
   const [toast, setToast] = useState('');
+  const [isPdfGenerating, setIsPdfGenerating] = useState(false);
+  // Template style for the resume preview & PDF export
+  const [templateStyle, setTemplateStyle] = useState('modern');
+  // Inline edit mode — when true, clicking text on the resume preview edits it directly
+  const [inlineEditMode, setInlineEditMode] = useState(true);
   const [activeTab, setActiveTab] = useState('projects');
   const [mobileView, setMobileView] = useState('split'); // 'edit', 'preview', 'split'
 
   const printableRef = useRef(null);
+  const previewScaleRef = useRef(null); // wrapper div for the scaled A4 preview
 
   // Core editable resume state
   const [resumeData, setResumeData] = useState({
@@ -207,6 +218,18 @@ export default function ResumeEditor() {
     loadData();
   }, [selectedResumeId]);
 
+  // Re-scale the A4 preview pane every time resumeData changes
+  useEffect(() => {
+    const el = previewScaleRef.current;
+    if (!el) return;
+    const parent = el.parentElement;
+    if (!parent) return;
+    const available = parent.clientWidth - 24; // 2×12px padding
+    const scale = Math.min(1, available / 794);
+    el.style.transform = `scale(${scale})`;
+    parent.style.height = `${el.scrollHeight * scale + 24}px`;
+  }, [resumeData]);
+
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(''), 4000);
@@ -286,9 +309,31 @@ export default function ResumeEditor() {
     }
   };
 
-  // Print / Export PDF Handler
-  const handlePrint = () => {
-    window.print();
+  // Direct PDF Download Handler — saves to user's local system without print dialog
+  const handlePrint = async () => {
+    const element = printableRef.current;
+    if (!element) return;
+
+    // Build a clean filename from the candidate's name
+    const name = resumeData?.personalInfo?.name || 'Resume';
+    const safeName = name.replace(/[^a-z0-9]/gi, '_').replace(/_+/g, '_');
+    const filename = `${safeName}_ATS_Resume.pdf`;
+
+    const options = {
+      margin:       [12, 15, 12, 15], // top, right, bottom, left  (in mm)
+      filename,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, logging: false },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] },
+    };
+
+    setIsPdfGenerating(true);
+    try {
+      await html2pdf().set(options).from(element).save();
+    } finally {
+      setIsPdfGenerating(false);
+    }
   };
 
   // Project Helper Handlers
@@ -401,10 +446,23 @@ export default function ResumeEditor() {
               {/* Primary Download ATS PDF Button */}
               <button
                 onClick={handlePrint}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-extrabold shadow-md shadow-indigo-200 transition-all flex items-center gap-1.5 cursor-pointer"
+                disabled={isPdfGenerating}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 disabled:cursor-not-allowed text-white rounded-xl text-xs font-extrabold shadow-md shadow-indigo-200 transition-all flex items-center gap-1.5 cursor-pointer"
               >
-                <Download className="w-4 h-4" />
-                <span>Download ATS PDF</span>
+                {isPdfGenerating ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                    </svg>
+                    <span>Generating…</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4" />
+                    <span>Download ATS PDF</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -524,7 +582,8 @@ export default function ResumeEditor() {
                   { id: 'skills', label: 'Skills', icon: Wrench },
                   { id: 'projects', label: 'Projects', icon: FolderGit2 },
                   { id: 'experience', label: 'Experience', icon: Briefcase },
-                  { id: 'education', label: 'Education', icon: GraduationCap }
+                  { id: 'education', label: 'Education', icon: GraduationCap },
+                  { id: 'certifications', label: 'Certs', icon: Award },
                 ].map((tab) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.id;
@@ -932,8 +991,105 @@ export default function ResumeEditor() {
                               />
                             </div>
                           </div>
+
+                          {/* Experience Bullet Points */}
+                          <div className="space-y-2 pt-1">
+                            <div className="flex items-center justify-between">
+                              <label className="block text-[11px] font-bold text-slate-600">Responsibility Bullet Points</label>
+                              <button
+                                onClick={() => {
+                                  const newE = [...resumeData.experience];
+                                  newE[eIdx].bullet_points = [...(newE[eIdx].bullet_points || []), 'Describe your key responsibility or achievement here.'];
+                                  setResumeData({ ...resumeData, experience: newE });
+                                }}
+                                className="text-[11px] text-indigo-600 font-bold flex items-center gap-0.5 cursor-pointer hover:underline"
+                              >
+                                <Plus className="w-3 h-3" />
+                                <span>Add Bullet</span>
+                              </button>
+                            </div>
+                            {(exp.bullet_points || []).map((bp, bIdx) => (
+                              <div key={bIdx} className="flex items-start gap-2">
+                                <span className="text-slate-400 font-bold pt-2">•</span>
+                                <textarea
+                                  rows={2}
+                                  value={bp}
+                                  onChange={(e) => {
+                                    const newE = [...resumeData.experience];
+                                    const newBps = [...(newE[eIdx].bullet_points || [])];
+                                    newBps[bIdx] = e.target.value;
+                                    newE[eIdx].bullet_points = newBps;
+                                    setResumeData({ ...resumeData, experience: newE });
+                                  }}
+                                  className="w-full p-2 border border-slate-300 rounded-lg bg-white text-[11.5px] font-medium outline-hidden leading-relaxed"
+                                />
+                                {(exp.bullet_points || []).length > 1 && (
+                                  <button
+                                    onClick={() => {
+                                      const newE = [...resumeData.experience];
+                                      newE[eIdx].bullet_points = (newE[eIdx].bullet_points || []).filter((_, i) => i !== bIdx);
+                                      setResumeData({ ...resumeData, experience: newE });
+                                    }}
+                                    className="p-1.5 text-slate-400 hover:text-rose-600 pt-2 cursor-pointer"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       ))
+                    )}
+                  </div>
+                )}
+
+                {/* 7. CERTIFICATIONS */}
+                {activeTab === 'certifications' && (
+                  <div className="space-y-4 animate-fade-in">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">Certifications &amp; Awards</h3>
+                      <button
+                        onClick={() => setResumeData({
+                          ...resumeData,
+                          certifications: [...(resumeData.certifications || []), 'New Certification — Issuer (Year)']
+                        })}
+                        className="text-xs text-indigo-600 hover:text-indigo-700 font-bold flex items-center gap-1 cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Add Certification</span>
+                      </button>
+                    </div>
+                    {(resumeData.certifications || []).length === 0 ? (
+                      <p className="text-xs text-slate-400 italic">No certifications added yet.</p>
+                    ) : (
+                      (resumeData.certifications || []).map((cert, cIdx) => {
+                        const certText = typeof cert === 'string' ? cert : cert.name || cert.title || '';
+                        return (
+                          <div key={cIdx} className="flex items-center gap-2">
+                            <Award className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                            <input
+                              type="text"
+                              value={certText}
+                              onChange={(e) => {
+                                const newCerts = [...(resumeData.certifications || [])];
+                                newCerts[cIdx] = e.target.value;
+                                setResumeData({ ...resumeData, certifications: newCerts });
+                              }}
+                              className="flex-1 p-2 border border-slate-300 rounded-lg bg-white text-xs font-medium outline-hidden"
+                            />
+                            <button
+                              onClick={() => setResumeData({
+                                ...resumeData,
+                                certifications: (resumeData.certifications || []).filter((_, i) => i !== cIdx)
+                              })}
+                              className="text-slate-400 hover:text-rose-600 cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        );
+                      })
                     )}
                   </div>
                 )}
@@ -1007,19 +1163,79 @@ export default function ResumeEditor() {
 
             {/* RIGHT COLUMN: Live ATS Document Preview (Cols 7-12) */}
             <div className={`lg:col-span-6 space-y-3 ${mobileView === 'edit' ? 'hidden lg:block' : ''}`}>
-              <div className="no-print flex items-center justify-between px-1">
-                <div className="flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-slate-500" />
-                  <span className="text-xs font-bold text-slate-700">Live Recruiter ATS Preview</span>
+                {/* Preview header with template picker and inline-edit toggle */}
+              <div className="no-print flex flex-col gap-2 px-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Eye className="w-4 h-4 text-slate-500" />
+                    <span className="text-xs font-bold text-slate-700">Live Recruiter ATS Preview</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {/* Inline edit toggle */}
+                    <button
+                      onClick={() => setInlineEditMode((v) => !v)}
+                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all ${
+                        inlineEditMode
+                          ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                          : 'bg-white text-slate-500 border-slate-200 hover:border-emerald-400 hover:text-emerald-600'
+                      }`}
+                      title="Toggle direct inline editing on the resume preview"
+                    >
+                      <PencilLine className="w-3 h-3" />
+                      <span>{inlineEditMode ? 'Editing On' : 'Editing Off'}</span>
+                    </button>
+                    <span className="text-[11px] text-slate-400 font-semibold">
+                      100% Parsable
+                    </span>
+                  </div>
                 </div>
-                <span className="text-[11px] text-slate-400 font-semibold">
-                  Standard Vector Format (100% Parsable)
-                </span>
+
+                {/* Template Picker */}
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] font-bold text-slate-500 mr-1">Layout:</span>
+                  {[
+                    { id: 'modern',  label: 'Modern'  },
+                    { id: 'classic', label: 'Classic' },
+                    { id: 'compact', label: 'Compact' },
+                  ].map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => setTemplateStyle(t.id)}
+                      className={`px-3 py-1 rounded-lg text-[11px] font-bold border transition-all ${
+                        templateStyle === t.id
+                          ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                          : 'bg-white text-slate-500 border-slate-200 hover:border-indigo-400 hover:text-indigo-600'
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                  <span className="text-[10px] text-slate-400 ml-1">— pick the closest to your original</span>
+                </div>
+
+                {inlineEditMode && (
+                  <p className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 border border-emerald-200 rounded-lg px-2.5 py-1">
+                    ✏️ Click any text directly on the resume to edit it inline. Changes sync instantly.
+                  </p>
+                )}
               </div>
 
               {/* Printable Resume Component Wrapper */}
-              <div className="bg-slate-200/60 p-2 sm:p-4 rounded-2xl border border-slate-300/80 overflow-x-auto shadow-inner">
-                <PrintableResume ref={printableRef} resumeData={resumeData} />
+              <div
+                className="bg-slate-200/60 rounded-2xl border border-slate-300/80 shadow-inner overflow-hidden"
+                style={{ padding: '12px' }}
+              >
+                <div
+                  ref={previewScaleRef}
+                  style={{ width: '794px', transformOrigin: 'top left' }}
+                >
+                  <PrintableResume
+                    ref={printableRef}
+                    resumeData={resumeData}
+                    template={templateStyle}
+                    onDataChange={inlineEditMode && !isPdfGenerating ? setResumeData : null}
+                  />
+                </div>
               </div>
             </div>
           </div>
