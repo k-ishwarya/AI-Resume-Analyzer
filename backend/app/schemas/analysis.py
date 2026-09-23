@@ -43,12 +43,12 @@ class WeakSentenceSuggestion(BaseModel):
     reason: str
 
 class ATSBreakdown(BaseModel):
-    contact_information: int = 100
-    section_structure: int = 90
-    skills: int = 85
-    keywords: int = 78
-    projects: int = 82
-    readability: int = 88
+    contact_information: int = 0
+    section_structure: int = 0
+    skills: int = 0
+    keywords: int = 0
+    projects: int = 0
+    readability: int = 0
 
 class ResumeAnalysisCreate(BaseModel):
     ats_score: int

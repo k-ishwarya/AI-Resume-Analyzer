@@ -10,6 +10,10 @@ from app.core.config import settings
 from app.database.database import engine, Base
 import app.database.models  # Ensures all models are registered
 
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from app.core.limiter import limiter
+
 # Import routers
 from app.routes.auth import router as auth_router
 from app.routes.resume import router as resume_router
@@ -41,10 +45,13 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 # CORS Configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows frontend on any local port or deployed domain
+    allow_origins=[settings.FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

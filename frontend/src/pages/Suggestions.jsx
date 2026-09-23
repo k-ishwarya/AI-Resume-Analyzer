@@ -128,18 +128,7 @@ export default function Suggestions() {
     setError('');
   };
 
-  const suggestionsList = analysis?.suggestions || [
-    {
-      current: "Made a website using React and backend with Python.",
-      suggested: "Architected a responsive full-stack web application leveraging React.js, FastAPI, and PostgreSQL with JWT-authenticated endpoints.",
-      reason: "Uses stronger action verbs ('Architected', 'Leveraging') and specifies key architectural frameworks."
-    },
-    {
-      current: "Worked with team on bug fixing and features.",
-      suggested: "Collaborated in an agile scrum team of 5 engineers to debug regression issues and ship key feature releases ahead of sprint deadlines.",
-      reason: "Replaces vague phrasing with concrete team collaboration, methodologies, and sprint delivery context."
-    }
-  ];
+  const suggestionsList = Array.isArray(analysis?.suggestions) ? analysis.suggestions : [];
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -201,61 +190,71 @@ export default function Suggestions() {
               )}
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
-              {suggestionsList.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4"
-                >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Current Version */}
-                    <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
-                      <span className="text-[11px] font-bold text-rose-600 uppercase tracking-wider block">
-                        Current Phrasing (Needs Improvement)
-                      </span>
-                      <p className="text-xs text-slate-700 italic">"{item.current}"</p>
+            {suggestionsList.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-slate-200 p-6 text-center space-y-2">
+                <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto" />
+                <h3 className="text-sm font-bold text-slate-800">No Weak Sentences Flagged</h3>
+                <p className="text-xs text-slate-500 max-w-md mx-auto">
+                  Your resume descriptions already use proactive phrasing. Use the Project Improver tool below to craft additional high-impact bullet points for any project.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-4">
+                {suggestionsList.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4"
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Current Version */}
+                      <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                        <span className="text-[11px] font-bold text-rose-600 uppercase tracking-wider block">
+                          Current Phrasing (Needs Improvement)
+                        </span>
+                        <p className="text-xs text-slate-700 italic">"{item.current}"</p>
+                      </div>
+
+                      {/* AI Suggested Version */}
+                      <div className="p-3.5 rounded-xl bg-indigo-50/60 border border-indigo-200/80 space-y-1 relative">
+                        <span className="text-[11px] font-bold text-indigo-700 uppercase tracking-wider block">
+                          AI Recommended Version
+                        </span>
+                        <p className="text-xs font-semibold text-slate-900 leading-relaxed">
+                          "{item.suggested}"
+                        </p>
+                      </div>
                     </div>
 
-                    {/* AI Suggested Version */}
-                    <div className="p-3.5 rounded-xl bg-indigo-50/60 border border-indigo-200/80 space-y-1 relative">
-                      <span className="text-[11px] font-bold text-indigo-700 uppercase tracking-wider block">
-                        AI Recommended Version
-                      </span>
-                      <p className="text-xs font-semibold text-slate-900 leading-relaxed">
-                        "{item.suggested}"
-                      </p>
+                    {/* Reason & Copy button */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-100">
+                      <div className="flex items-start gap-1.5 text-xs text-slate-600">
+                        <Info className="w-4 h-4 text-indigo-500 flex-shrink-0 mt-0.5" />
+                        <span>
+                          <strong className="text-slate-800">Why this works:</strong> {item.reason}
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() => handleCopy(item.suggested, idx)}
+                        className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
+                      >
+                        {copiedIndex === idx ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-600" />
+                            <span className="text-emerald-700">Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5 text-slate-500" />
+                            <span>Copy Suggestion</span>
+                          </>
+                        )}
+                      </button>
                     </div>
                   </div>
-
-                  {/* Reason & Copy button */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-100">
-                    <div className="flex items-start gap-1.5 text-xs text-slate-600">
-                      <Info className="w-4 h-4 text-indigo-500 flex-shrink-0 mt-0.5" />
-                      <span>
-                        <strong className="text-slate-800">Why this works:</strong> {item.reason}
-                      </span>
-                    </div>
-
-                    <button
-                      onClick={() => handleCopy(item.suggested, idx)}
-                      className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
-                    >
-                      {copiedIndex === idx ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 text-emerald-600" />
-                          <span className="text-emerald-700">Copied!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3.5 h-3.5 text-slate-500" />
-                          <span>Copy Suggestion</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Section 14: Project Description Improvement Tool */}

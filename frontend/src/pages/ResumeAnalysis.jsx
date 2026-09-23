@@ -209,32 +209,37 @@ export default function ResumeAnalysis() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
                 <ProgressBar
                   label="Contact Information"
-                  value={ats_breakdown.contact_information || 90}
+                  value={ats_breakdown?.contact_information ?? 0}
                   color="indigo"
                 />
                 <ProgressBar
                   label="Section Structure"
-                  value={ats_breakdown.section_structure || 85}
+                  value={ats_breakdown?.section_structure ?? 0}
                   color="blue"
                 />
                 <ProgressBar
                   label="Technical Skills"
-                  value={ats_breakdown.skills || 80}
+                  value={ats_breakdown?.technical_skills ?? 0}
                   color="emerald"
                 />
                 <ProgressBar
                   label="Keywords & Verbs"
-                  value={ats_breakdown.keywords || 75}
+                  value={ats_breakdown?.keywords_and_verbs ?? 0}
                   color="amber"
                 />
                 <ProgressBar
                   label="Projects & Impact"
-                  value={ats_breakdown.projects || 82}
+                  value={ats_breakdown?.projects_and_impact ?? 0}
                   color="violet"
                 />
                 <ProgressBar
-                  label="Readability & Formatting"
-                  value={ats_breakdown.readability || 88}
+                  label="Sentence Quality"
+                  value={ats_breakdown?.sentence_quality ?? 0}
+                  color="rose"
+                />
+                <ProgressBar
+                  label="Readability & Length"
+                  value={ats_breakdown?.readability_and_length ?? 0}
                   color="indigo"
                 />
               </div>

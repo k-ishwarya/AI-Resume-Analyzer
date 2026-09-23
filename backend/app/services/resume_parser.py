@@ -80,15 +80,23 @@ async def parse_and_validate_resume(file: UploadFile) -> tuple[str, str, int]:
             detail=f"Unsupported file format '{extension}'. Please upload a PDF or DOCX file."
         )
         
-    content = await file.read()
-    file_size = len(content)
+    file_size = 0
     max_bytes = settings.MAX_FILE_SIZE_MB * 1024 * 1024
+    content_chunks = []
     
-    if file_size > max_bytes:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"File exceeds maximum allowed size of {settings.MAX_FILE_SIZE_MB}MB."
-        )
+    while True:
+        chunk = await file.read(1024 * 1024)  # Read in 1MB chunks
+        if not chunk:
+            break
+        file_size += len(chunk)
+        if file_size > max_bytes:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"File exceeds maximum allowed size of {settings.MAX_FILE_SIZE_MB}MB."
+            )
+        content_chunks.append(chunk)
+        
+    content = b"".join(content_chunks)
         
     if file_size == 0:
         raise HTTPException(

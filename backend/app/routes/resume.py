@@ -1,16 +1,19 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status, Request
 from sqlalchemy.orm import Session
 from app.database.database import get_db
 from app.database.models import User, Resume, ResumeAnalysis, JobAnalysis
 from app.core.deps import get_current_user
 from app.services.resume_parser import parse_and_validate_resume
 from app.schemas.resume import ResumeResponse, ResumeDetail
+from app.core.limiter import limiter
 
 router = APIRouter(prefix="/api/resumes", tags=["Resumes"])
 
 @router.post("/upload", response_model=ResumeDetail, status_code=status.HTTP_201_CREATED)
+@limiter.limit("5/minute")
 async def upload_resume(
+    request: Request,
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)

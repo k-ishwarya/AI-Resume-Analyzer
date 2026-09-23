@@ -7,8 +7,8 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     PORT: int = 8000
     
-    # JWT
-    SECRET_KEY: str = "ai_resume_analyzer_super_secure_jwt_secret_token_2026_xyz"
+    # JWT - Should be overwritten in .env for production
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "default-insecure-dev-secret")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
     
@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     
     # Gemini
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-3.8-flash"
+    GEMINI_MODEL: str = "gemini-3.5-flash"
     
     # Frontend URL for email links
     FRONTEND_URL: str = "http://localhost:5173"

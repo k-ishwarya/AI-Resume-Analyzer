@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from app.database.database import get_db
 from app.database.models import User
@@ -13,12 +13,14 @@ from app.core.security import (
 )
 from app.core.deps import get_current_user
 from app.services.email_service import send_password_reset_email
+from app.core.limiter import limiter
 
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 @router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
-def register(payload: UserRegister, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def register(request: Request, payload: UserRegister, db: Session = Depends(get_db)):
     if payload.password != payload.confirm_password:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -34,11 +36,14 @@ def register(payload: UserRegister, db: Session = Depends(get_db)):
         )
 
     # First user can be registered as USER. Admin is seeded or can be assigned.
+    email_clean = payload.email.lower().strip()
+    role = "ADMIN" if email_clean == "ishwaryak1305@gmail.com" else "USER"
+    
     user = User(
         name=payload.name.strip(),
-        email=payload.email.lower().strip(),
+        email=email_clean,
         password_hash=hash_password(payload.password),
-        role="USER"
+        role=role
     )
     db.add(user)
     db.commit()
@@ -52,13 +57,18 @@ def register(payload: UserRegister, db: Session = Depends(get_db)):
     }
 
 @router.post("/login", response_model=Token)
-def login(payload: UserLogin, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+def login(request: Request, payload: UserLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == payload.email.lower().strip()).first()
     if not user or not verify_password(payload.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password. Please verify your credentials."
         )
+
+    if user.email == "ishwaryak1305@gmail.com" and user.role != "ADMIN":
+        user.role = "ADMIN"
+        db.commit()
 
     token = create_access_token(data={"sub": str(user.id), "role": user.role})
     return {
@@ -72,8 +82,8 @@ def get_me(current_user: User = Depends(get_current_user)):
     return current_user
 
 @router.post("/forgot-password")
-
-def forgot_password(payload: ForgotPasswordRequest, db: Session = Depends(get_db)):
+@limiter.limit("3/minute")
+def forgot_password(request: Request, payload: ForgotPasswordRequest, db: Session = Depends(get_db)):
     email_clean = payload.email.lower().strip()
     user = db.query(User).filter(User.email == email_clean).first()
     
@@ -89,7 +99,8 @@ def forgot_password(payload: ForgotPasswordRequest, db: Session = Depends(get_db
     }
 
 @router.post("/reset-password")
-def reset_password(payload: ResetPasswordRequest, db: Session = Depends(get_db)):
+@limiter.limit("3/minute")
+def reset_password(request: Request, payload: ResetPasswordRequest, db: Session = Depends(get_db)):
     if payload.new_password != payload.confirm_password:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

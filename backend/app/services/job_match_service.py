@@ -224,15 +224,14 @@ async def analyze_job_match(
     else:
         experience_match = "Partial"
 
-    # Base match score computation:
-    # 60% weight on skill match ratio, 20% on title alignment, 20% on experience depth
-    skill_component = skill_ratio * 60
-    title_component = 20 if title_match else 5
-    exp_component = 20 if experience_match == "Good" else (12 if experience_match == "Partial" else 5)
+    # Authentic match score computation:
+    # 70% weight on skill match ratio, 15% on title alignment, 15% on experience depth
+    skill_component = skill_ratio * 70
+    title_component = 15 if title_match else 0
+    exp_component = 15 if experience_match == "Good" else (8 if experience_match == "Partial" else 0)
 
     raw_score = int(round(skill_component + title_component + exp_component))
-    # Bound realistically between 15% and 96%
-    match_score = max(15, min(96, raw_score))
+    match_score = max(0, min(100, raw_score))
 
     matched_skills = [format_skill_name(s) for s in sorted(matched_set)]
     missing_skills = [format_skill_name(s) for s in sorted(missing_set)]

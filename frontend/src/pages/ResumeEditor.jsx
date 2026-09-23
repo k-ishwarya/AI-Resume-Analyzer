@@ -137,75 +137,53 @@ export default function ResumeEditor() {
 
           // Format projects with bullet points if missing
           const formattedProjects = rawProjects.map((p) => ({
-            name: p.name || 'Project Title',
+            name: p.name || '',
             technologies: Array.isArray(p.technologies) ? p.technologies : (p.technologies ? [p.technologies] : []),
             link: p.link || '',
             description: p.description || '',
-            bullet_points: p.key_contributions || (p.description ? [p.description] : ['Engineered responsive application logic with modular architecture.'])
+            bullet_points: p.key_contributions || (p.description ? [p.description] : [])
           }));
 
           // Format experience
           const formattedExperience = rawExperience.map((e) => ({
-            title: e.title || e.role || 'Software Engineer',
-            company: e.company || 'Tech Solutions',
+            title: e.title || e.role || '',
+            company: e.company || '',
             location: e.location || '',
-            duration: e.duration || '2023 - Present',
-            bullet_points: e.responsibilities || ['Collaborated across engineering teams to ship high-impact features.']
+            duration: e.duration || '',
+            bullet_points: e.responsibilities || []
           }));
 
           // Format education
           const formattedEducation = rawEducation.map((ed) => ({
-            degree: ed.degree || 'Bachelor of Science / Technology',
-            college: ed.college || ed.institution || 'University',
-            graduation_year: ed.graduation_year || '2024',
+            degree: ed.degree || '',
+            college: ed.college || ed.institution || '',
+            graduation_year: ed.graduation_year || '',
             cgpa_percentage: ed.cgpa_percentage || ''
           }));
 
           setResumeData({
             personalInfo: {
-              name: personal.name || 'Candidate Name',
+              name: personal.name || '',
               email: personal.email || '',
               phone: personal.phone || '',
-              location: personal.location || 'Bengaluru, India',
+              location: personal.location || '',
               linkedin: personal.linkedin || '',
               github: personal.github || '',
               portfolio: personal.portfolio || ''
             },
-            summary: 'Proactive and detail-oriented Software Engineer with strong hands-on proficiency in building scalable full-stack applications, designing robust RESTful APIs, and implementing responsive, user-centered web interfaces.',
+            summary: analysisData.summary || '',
             skills: {
-              programming_languages: skillsObj.programming_languages || ['Python', 'JavaScript', 'SQL'],
-              frameworks: skillsObj.frameworks || ['React.js', 'FastAPI', 'Node.js', 'Tailwind CSS'],
-              databases: skillsObj.databases || ['PostgreSQL', 'MySQL', 'MongoDB'],
-              tools: skillsObj.tools || ['Git', 'GitHub', 'VS Code', 'Postman'],
-              cloud: skillsObj.cloud || ['AWS', 'Docker', 'Vercel'],
-              other: skillsObj.other || ['REST APIs', 'Agile', 'OOP']
+              programming_languages: skillsObj.programming_languages || [],
+              frameworks: skillsObj.frameworks || [],
+              databases: skillsObj.databases || [],
+              tools: skillsObj.tools || [],
+              cloud: skillsObj.cloud || [],
+              other: skillsObj.other || []
             },
-            projects: formattedProjects.length > 0 ? formattedProjects : [
-              {
-                name: 'AI Resume Optimization Platform',
-                technologies: ['React.js', 'Python', 'FastAPI', 'PostgreSQL', 'Tailwind CSS'],
-                link: 'https://github.com/example/resume-ai',
-                description: 'Full-stack platform delivering instant ATS scoring, job match analytics, and AI resume rewriting.',
-                bullet_points: [
-                  'Architected responsive, component-driven user interface leveraging React.js and Tailwind CSS for seamless cross-device usability.',
-                  'Engineered scalable RESTful API endpoints using Python and FastAPI, handling multi-part file parsing and secure JWT authentication.',
-                  'Implemented optimized database queries with PostgreSQL and SQLAlchemy, reducing analytical latency by 35%.'
-                ]
-              }
-            ],
+            projects: formattedProjects,
             experience: formattedExperience,
-            education: formattedEducation.length > 0 ? formattedEducation : [
-              {
-                degree: 'Bachelor of Technology in Computer Science & Engineering',
-                college: 'National Institute of Technology / University',
-                graduation_year: '2024',
-                cgpa_percentage: '8.6 / 10 CGPA'
-              }
-            ],
-            certifications: analysisData.certifications || [
-              'Full-Stack Web Development Specialization',
-              'Certified Cloud Practitioner / Database Fundamentals'
-            ]
+            education: formattedEducation,
+            certifications: analysisData.certifications || []
           });
         }
       } catch (err) {
