@@ -66,7 +66,7 @@ def extract_text_from_docx(content: bytes) -> str:
             detail=f"Failed to extract text from DOCX: {str(e)}"
         )
 
-async def parse_and_validate_resume(file: UploadFile) -> tuple[str, str, int]:
+async def parse_and_validate_resume(file: UploadFile) -> tuple[str, str, int, str]:
     """
     Validates file extension and size, extracts text, cleans it,
     and returns (file_name, file_type, file_size, extracted_text).
