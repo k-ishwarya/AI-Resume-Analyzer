@@ -14,6 +14,7 @@ from app.core.security import (
 from app.core.deps import get_current_user
 from app.services.email_service import send_password_reset_email
 from app.core.limiter import limiter
+from app.core.config import settings
 
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
@@ -37,7 +38,7 @@ def register(request: Request, payload: UserRegister, db: Session = Depends(get_
 
     # First user can be registered as USER. Admin is seeded or can be assigned.
     email_clean = payload.email.lower().strip()
-    role = "ADMIN" if email_clean == "ishwaryak1305@gmail.com" else "USER"
+    role = "ADMIN" if (settings.ADMIN_EMAIL and email_clean == settings.ADMIN_EMAIL.lower()) else "USER"
     
     user = User(
         name=payload.name.strip(),
@@ -66,7 +67,7 @@ def login(request: Request, payload: UserLogin, db: Session = Depends(get_db)):
             detail="Invalid email or password. Please verify your credentials."
         )
 
-    if user.email == "ishwaryak1305@gmail.com" and user.role != "ADMIN":
+    if settings.ADMIN_EMAIL and user.email == settings.ADMIN_EMAIL.lower() and user.role != "ADMIN":
         user.role = "ADMIN"
         db.commit()
 

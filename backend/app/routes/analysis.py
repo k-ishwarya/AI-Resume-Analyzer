@@ -1,5 +1,5 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from app.database.database import get_db
 from app.database.models import User, Resume, ResumeAnalysis
@@ -7,11 +7,14 @@ from app.core.deps import get_current_user
 from app.schemas.analysis import ResumeAnalysisResponse, ImproveProjectRequest, ImproveProjectResponse
 from app.services.gemini_service import gemini_service
 from app.services.ats_service import calculate_ats_metrics
+from app.core.limiter import limiter
 
 router = APIRouter(prefix="/api/analysis", tags=["Analysis"])
 
 @router.post("/improve-project", response_model=ImproveProjectResponse)
+@limiter.limit("5/minute")
 async def improve_project(
+    request: Request,
     payload: ImproveProjectRequest,
     current_user: User = Depends(get_current_user)
 ):
@@ -22,7 +25,9 @@ async def improve_project(
     )
 
 @router.post("/{resume_id}", response_model=ResumeAnalysisResponse)
+@limiter.limit("3/minute")
 async def analyze_resume(
+    request: Request,
     resume_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)

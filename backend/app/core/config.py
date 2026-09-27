@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     # Gemini
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-3.5-flash"
+
+    # Admin
+    ADMIN_EMAIL: str = ""
     
     # Frontend URL for email links
     FRONTEND_URL: str = "http://localhost:5173"

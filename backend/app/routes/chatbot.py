@@ -1,16 +1,19 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from app.database.database import get_db
 from app.database.models import User, Resume, ResumeAnalysis, ChatMessage
 from app.core.deps import get_current_user
 from app.schemas.chatbot import ChatRequest, ChatResponse, ChatMessageResponse
 from app.services.gemini_service import gemini_service
+from app.core.limiter import limiter
 
 router = APIRouter(prefix="/api/chat", tags=["AI Resume Assistant"])
 
 @router.post("", response_model=ChatResponse)
+@limiter.limit("10/minute")
 async def send_chat_message(
+    request: Request,
     payload: ChatRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)

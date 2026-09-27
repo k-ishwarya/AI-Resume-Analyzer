@@ -1,11 +1,12 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from app.database.database import get_db
 from app.database.models import User, Resume, ResumeAnalysis, JobAnalysis
 from app.core.deps import get_current_user
 from app.schemas.job import JobMatchRequest, JobMatchResponse
 from app.services.job_match_service import analyze_job_match
+from app.core.limiter import limiter
 
 router = APIRouter(prefix="/api/job-match", tags=["Job Match"])
 
@@ -49,7 +50,9 @@ async def _perform_job_match(resume_id: int, payload: JobMatchRequest, current_u
     return job_analysis
 
 @router.post("/analyze", response_model=JobMatchResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit("5/minute")
 async def analyze_job_match_endpoint(
+    request: Request,
     payload: JobMatchRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)

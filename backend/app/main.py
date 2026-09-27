@@ -42,7 +42,9 @@ app = FastAPI(
     title="AI Resume Analyzer API",
     description="Backend API for AI Resume Analyzer platform with ATS scoring, job matching, and Gemini AI insights.",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    docs_url=None if settings.APP_ENV == "production" else "/docs",
+    redoc_url=None if settings.APP_ENV == "production" else "/redoc",
 )
 
 app.state.limiter = limiter
